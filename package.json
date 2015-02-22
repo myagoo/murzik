@@ -1,7 +1,7 @@
 {
   "name": "murzik",
   "version": "0.0.1",
-  "description": "IM with users which are currently listening to same artist/album/track as you or just leave a message ",
+  "description": "IM with users which are currently listening to same artist/album/track as you or just leave a message",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "bundle": "webpack --colors --progress",
