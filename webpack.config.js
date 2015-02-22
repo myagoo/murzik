@@ -7,6 +7,7 @@ module.exports = {
 	},
 	output: {
 		path: path.join(__dirname, 'dist'),
+		publicPath: "http://localhost:9090/",
 		filename: "[name].bundle.js",
 		chunkFilename: "[id].bundle.js"
 	},

@@ -1,14 +1,12 @@
-.app{
+html, body{
+  width: 100vw;
   height: 100vh;
   overflow: hidden;
   display: flex;
-  flex-direction: column;
-}
-.rooms{
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: row;
-  overflow: hidden;
+  align-content: center;
+  justify-content: center;
+  background-color: @pink-50;
 }
 
-@import "~components/Room/Room.less";
+@import "~components/Login/Login.less";
+@import "~components/Layout/Layout.less";

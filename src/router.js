@@ -1,5 +1,5 @@
 var App = require('components/App/App.js');
-var {Route, HashLocation, create} = require('react-router');
+var {Route, HistoryLocation, create} = require('react-router');
 
 var routes = (
   <Route name="app" path="/" handler={App}>
@@ -8,7 +8,7 @@ var routes = (
 
 var router = create({
   routes: routes,
-  location: HashLocation
+  location: HistoryLocation
 });
 
 module.exports = router;

@@ -1,12 +1,12 @@
-var React = require('react');
-var _ = require('lodash');
-var {TextField, RaisedButton} = require('material-ui');
+import React from 'react';
+import _ from 'lodash';
+import {TextField, RaisedButton} from 'material-ui';
+
 var Room = React.createClass({
   render: function () {
-
     var entries = _.range(100).map(function(index){
       return (
-        <div className="room__entry">
+        <div key={index} className="room__entry">
           TEST ! {index}
         </div>
       );
@@ -27,4 +27,5 @@ var Room = React.createClass({
     );
   }
 });
-module.exports = Room;
+
+export default Room;
