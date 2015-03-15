@@ -26,3 +26,7 @@ node_modules
 
 # Users Environment Variables
 .lock-wscript
+
+# Local project configuration
+src/client.config.js
+src/server.config.js
