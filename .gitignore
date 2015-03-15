@@ -28,5 +28,7 @@ node_modules
 .lock-wscript
 
 # Local project configuration
+dist/*
+static/dist/*
 src/client.config.js
 src/server.config.js
