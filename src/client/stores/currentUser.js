@@ -8,9 +8,9 @@ var currentUserStore = Reflux.createStore({
       this.currentUser = Immutable.fromJS(user);
       this.trigger(this.currentUser);
     },
-    onLogoutCompleted: function(){
+    onLogout: function(){
       delete this.currentUser;
-      this.trigger();
+      this.trigger(this.currentUser);
     }
 });
 

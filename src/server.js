@@ -33,15 +33,14 @@ http.listen(8000, function(){
 var users = {};
 var rooms = {};
 
-/*setInterval(function(){
+setInterval(function(){
   Object.keys(users).map(function(username){
-    console.log('retreiving current track for user', username);
-    var user = users[username];
-    api.getCurrentTrack(username).then(function(currentTrack){
-      console.log(username, currentTrack);
-    });
+    let user = users[username];
+    console.log(user.currentTrack)
   });
-}, 10000);*/
+}, 1000);
+
+
 
 io.on('connection', function(socket){
   console.log('user connected');
@@ -55,7 +54,7 @@ io.on('connection', function(socket){
     };
     console.log('get currentTrack', user.name)
     api.getCurrentTrack(user.name).then((currentTrack) =>
-      users[user.name].currentTrack = currentTrack);
+      users[user.name].currentTrack = currentTrack).then(console.log);
   });
 
   socket.on('logout', function(user){

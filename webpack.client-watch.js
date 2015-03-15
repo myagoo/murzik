@@ -1,5 +1,4 @@
 var webpack = require('webpack');
-var HtmlWebpackPlugin = require('html-webpack-plugin')
 var config = require('./webpack.client.js');
 
 var host = 'localhost';
