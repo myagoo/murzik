@@ -43,7 +43,7 @@ setInterval(function() {
 io.on('connection', function(socket) {
 
   socket.once('login', function(userName) {
-    handleLogin(socket, userName).then(function(user){
+    handleLogin(socket, userName).then(function(user) {
 
       socket.once('logout', function() {
         handleLogout(user);
@@ -115,16 +115,16 @@ function handleUserLogin(socket, userName) {
   });
 }
 
-function handleUserLogout(user){
-  let channels = extractChannels(user.currentTrack);
-  let channelKeys = Object.keys(channels);
+function handleUserLogout(user) {
+    let channels = extractChannels(user.currentTrack);
+    let channelKeys = Object.keys(channels);
 
-  user.sockets.forEach(function(socket){
-    channelKeys.forEach(function(key) {
-      socket.leave(channels[key]);
+    user.sockets.forEach(function(socket) {
+        channelKeys.forEach(function(key) {
+            socket.leave(channels[key]);
+          }
+          socket.emit('app.logout');
+        });
+
+      delete users[userName];
     }
-    socket.emit('app.logout');
-  });
-
-  delete users[userName];
-}

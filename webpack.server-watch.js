@@ -3,14 +3,15 @@ var config = require('./webpack.server.js');
 
 var host = 'localhost';
 
-if(process.env.npm_config_argv){
+if (process.env.npm_config_argv) {
   var args = JSON.parse(process.env.npm_config_argv).remain;
-  if(args && args.length){
-    var hostMatcher = /^--host=(.+)$/, hostMatcherResult;
-    while(args.length && !hostMatcherResult){
+  if (args && args.length) {
+    var hostMatcher = /^--host=(.+)$/,
+      hostMatcherResult;
+    while (args.length && !hostMatcherResult) {
       hostMatcherResult = hostMatcher.exec(args.shift());
     }
-    if(hostMatcherResult){
+    if (hostMatcherResult) {
       host = hostMatcherResult[1];
     }
   }

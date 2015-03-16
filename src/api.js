@@ -4,13 +4,13 @@ import mime from 'rest/interceptor/mime';
 let client = rest.wrap(mime);
 
 class Api {
-  constructor(uri, key){
+  constructor(uri, key) {
     this.uri = uri;
     this.key = key;
     return this;
   }
 
-  call(method, params){
+  call(method, params) {
     params = params || {};
     params.format = 'json';
     params.api_key = this.key;
@@ -27,13 +27,13 @@ class Api {
     });
   }
 
-  getUserInfos(username){
+  getUserInfos(username) {
     return this.call('user.getinfo', {
       user: username
     }).then((result) => result.user);
   }
 
-  getCurrentTrack(username){
+  getCurrentTrack(username) {
     return this.call('user.getrecenttracks', {
       user: username,
       limit: 1,
