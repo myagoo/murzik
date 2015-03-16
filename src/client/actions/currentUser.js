@@ -18,12 +18,16 @@ let currentUserActions = Reflux.createActions({
 
 // when 'load' is triggered, call async operation and trigger related actions
 currentUserActions.login.listen(function(payload) {
-  api.getUserInfos(payload.username)
-    .then(function(user) {
-      socket.emit('login', user);
-      this.completed(user);
-    }.bind(this))
-    .catch(this.failed);
+    socket.emit('login', payload.username);
+});
+
+socket.on('login.completed', function(user){
+    currentUserActions.login.completed(user);
+});
+
+socket.on('login.failed', function(error){
+    console.log('#ERROR',error );
+    currentUserActions.login.failed(error);
 });
 
 currentUserActions.logout.listen(function(payload) {

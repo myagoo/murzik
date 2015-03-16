@@ -3,6 +3,11 @@ import _ from 'lodash';
 import {TextField, RaisedButton} from 'material-ui';
 
 var Room = React.createClass({
+  getInitialState: function(){
+      return {
+          value: ''
+      };
+  },
   handleKeyDown: function(event){
     if(event.keyCode !== 27){
       return;
@@ -20,7 +25,7 @@ var Room = React.createClass({
     });
 
     this.setState({
-      value: '';
+      value: ''
     });
   },
   handleChange: function(event){
