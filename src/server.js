@@ -9,7 +9,7 @@ let api = new Api(config.api.uri, config.api.key);
 
 app.use(logger);
 app.use(serveStatic);
-app.get('/', function (req, res) {
+app.get('/', function(req, res) {
   res.send(`
     <!DOCTYPE html>
     <html>
@@ -26,43 +26,105 @@ app.get('/', function (req, res) {
   `);
 });
 
-http.listen(8000, function(){
+http.listen(8000, function() {
   console.log('listening on *:8000');
 });
 
 var users = {};
 var rooms = {};
 
-setInterval(function(){
-  Object.keys(users).map(function(username){
+setInterval(function() {
+  Object.keys(users).map(function(username) {
     let user = users[username];
     console.log(user.currentTrack)
   });
 }, 1000);
 
+io.on('connection', function(socket) {
 
+  socket.once('login', function(userName) {
+    handleLogin(socket, userName).then(function(user){
 
-io.on('connection', function(socket){
-  console.log('user connected');
+      socket.once('logout', function() {
+        handleLogout(user);
+      });
 
-  socket.on('login', function(user){
-    console.log('user login', user);
-    users[user.name] = {
-      user: user,
-      socket: socket,
-      currentTrack: undefined
-    };
-    console.log('get currentTrack', user.name)
-    api.getCurrentTrack(user.name).then((currentTrack) =>
-      users[user.name].currentTrack = currentTrack).then(console.log);
+      socket.on('message', function(message) {
+        io.to(message.channel).emit(message);
+      });
+    });
   });
 
-  socket.on('logout', function(user){
-    console.log('user logout', user);
-    delete users[user.name];
-  });
-
-  socket.on('disconnect', function(){
+  socket.once('disconnect', function() {
     console.log('user disconnected');
   });
 });
+
+function extractChannels(track) {
+  return {
+    artist: track.artist.name,
+    album: track.artist.name + '/' + track.album.name,
+    track: track.artist.name + '/' + track.album.name + '/' + track.name,
+  };
+}
+
+function updateUserChannels(user, track) {
+  let oldChannels = extractChannels(user.currentTrack);
+  let newChannels = extractChannels(track);
+
+  Object.keys(newChannels).forEach(function(key) {
+    if (newChannels[key] !== oldChannels[key]) {
+      user.sockets.forEach(function(socket) {
+        // Leave old channel
+        socket.leave(oldChannels[key]);
+        // Join new channel if any
+        if (newChannels[key]) {
+          socket.join(newChannels[key]);
+        }
+        // Tell the client about the new channel
+        socket.emit('channel.update', {
+          oldChannel: oldChannels[key],
+          newChannel: newChannels[key]
+        });
+      });
+    }
+  });
+}
+
+function getUser(userName) {
+  if (users[userName]) {
+    return Promise.resolve(users[userName]);
+  }
+  return api.getUserInfos(userName).then(function(userInfos) {
+    users[userName] = {
+      infos: userInfos,
+      sockets: []
+    };
+    return users[userName];
+  });
+}
+
+function handleUserLogin(socket, userName) {
+  return getUser(userName).then(function(user) {
+    // Add current socket to user socket list
+    user.sockets.push(socket);
+    return api.getCurrentTrack(user.name).then(function(currentTrack) {
+      updateUserChannels(user, currentTrack);
+      return user;
+    });
+  });
+}
+
+function handleUserLogout(user){
+  let channels = extractChannels(user.currentTrack);
+  let channelKeys = Object.keys(channels);
+
+  user.sockets.forEach(function(socket){
+    channelKeys.forEach(function(key) {
+      socket.leave(channels[key]);
+    }
+    socket.emit('app.logout');
+  });
+
+  delete users[userName];
+}
