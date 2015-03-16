@@ -1,7 +1,7 @@
 import Reflux from 'reflux';
 import Api from 'api.js';
-
 import config from 'client.config.js';
+import io from 'socket.io-client';
 
 let api = new Api(config.api.uri, config.api.key);
 

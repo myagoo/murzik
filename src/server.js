@@ -14,7 +14,6 @@ app.get('/', function(req, res) {
     <!DOCTYPE html>
     <html>
     <head>
-      <script src="/socket.io/socket.io.js"></script>
       <script src="${__HOST__}/dist/client.js"></script>
       <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,500' rel='stylesheet' type='text/css'>
       <link rel="stylesheet" href="material-design-icons/style.css" />
