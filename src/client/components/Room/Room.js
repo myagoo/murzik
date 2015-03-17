@@ -35,14 +35,7 @@ let Room = React.createClass({
     });
   },
   render: function () {
-    /*var messages = this.props.room.messages.map(function(message, index){
-      return (
-        <div key={index} className="room__entry">
-          {message}
-        </div>
-      );
-    }.bind(this));*/
-    var messages = _.range(10).map(function(index){
+    let messages = _.range(10).map(function(index){
       return (
         <div key={index} className="room__entry">
           {index}
@@ -53,7 +46,7 @@ let Room = React.createClass({
     return (
       <div className="room">
         <div className="room__infos">
-          "Test"
+          {this.props.room.get('name')}
         </div>
         <div className="room__entries">
           {messages}

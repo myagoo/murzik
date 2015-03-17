@@ -17,6 +17,8 @@ let Layout = React.createClass({
     }.bind(this));
   },
   render: function () {
+    let rooms = this.getRooms();
+
     return (
       <div className="layout">
         <Toolbar className="toolbar">
@@ -29,9 +31,7 @@ let Layout = React.createClass({
           </ToolbarGroup>
         </Toolbar>
         <div className="rooms">
-          <Room key={0} ty />
-          <Room key={1} />
-          <Room key={2}/>
+            {rooms}
         </div>
       </div>
     );

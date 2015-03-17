@@ -1,6 +1,18 @@
 var webpack = require('webpack');
 var path = require('path');
 var pathJoin = path.join.bind(path, __dirname);
+var fs = require('fs');
+var _ = require('lodash');
+
+var dependencies = JSON.parse(fs.readFileSync(pathJoin('package.json'))).dependencies;
+if('rest' in dependencies){
+    dependencies['rest/interceptor/mime'] = true;
+}
+
+var nodeModules = _.chain(dependencies)
+.transform(function(result, version, module) {
+    result[module] = 'commonjs ' + module;
+}).value();
 
 module.exports = {
   target: 'node',
@@ -36,16 +48,9 @@ module.exports = {
   output: {
     libraryTarget: 'commonjs'
   },
-  externals: {
-    'express': 'commonjs express',
-    'serve-static': 'commonjs serve-static',
-    'morgan': 'commonjs morgan',
-    'socket.io': 'commonjs socket.io',
-    'lodash': 'commonjs lodash',
-    'rest': 'commonjs rest',
-    'rest/interceptor/mime': 'commonjs rest/interceptor/mime'
-  },
+  externals: nodeModules,
   plugins: [
+    new webpack.IgnorePlugin(/vertx/),
     new webpack.DefinePlugin({
       __HOST__: '""',
     })
