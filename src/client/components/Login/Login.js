@@ -1,8 +1,8 @@
 import React from 'react';
 import {Paper, TextField, RaisedButton} from 'material-ui';
-import currentUserActions from 'actions/currentUser.js';
+import {currentUserActions} from 'actions.js';
 
-var Login = React.createClass({
+let Login = React.createClass({
   getInitialState: function(){
     return {
       username: ''

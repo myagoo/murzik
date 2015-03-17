@@ -5,7 +5,7 @@ import Login from 'components/Login/Login.js';
 import Layout from 'components/Layout/Layout.js';
 import currentUserStore from 'stores/currentUser.js'
 
-var App = React.createClass({
+let App = React.createClass({
   mixins: [Reflux.connect(currentUserStore, 'currentUser')],
   render: function () {
     if(this.state.currentUser === undefined){

@@ -1,3 +1,4 @@
+var webpack = require('webpack');
 var path = require('path');
 var pathJoin = path.join.bind(path, __dirname);
 
@@ -13,7 +14,7 @@ module.exports = {
     loaders: [{
       test: /\.js$/,
       exclude: /node_modules/,
-      loader: 'babel-loader'
+      loader: 'babel-loader?optional=runtime'
     }]
   },
   resolve: {
@@ -43,5 +44,10 @@ module.exports = {
     'lodash': 'commonjs lodash',
     'rest': 'commonjs rest',
     'rest/interceptor/mime': 'commonjs rest/interceptor/mime'
-  }
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      __HOST__: '""',
+    })
+  ]
 };

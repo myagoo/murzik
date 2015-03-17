@@ -1,8 +1,9 @@
 import React from 'react';
 import _ from 'lodash';
 import {TextField, RaisedButton} from 'material-ui';
+import {roomsActions} from 'actions.js';
 
-var Room = React.createClass({
+let Room = React.createClass({
   getInitialState: function(){
       return {
           value: ''
@@ -19,8 +20,8 @@ var Room = React.createClass({
       return;
     }
 
-    this.roomAction.send({
-      channel: this.props.channel,
+    this.roomsActions.send({
+      channel: this.props.room.get('channel'),
       message: value
     });
 
@@ -34,21 +35,28 @@ var Room = React.createClass({
     });
   },
   render: function () {
-    var entries = _.range(100).map(function(index){
+    /*var messages = this.props.room.messages.map(function(message, index){
       return (
         <div key={index} className="room__entry">
-          TEST ! {index}
+          {message}
         </div>
       );
-    }.bind(this));
+    }.bind(this));*/
+    var messages = _.range(10).map(function(index){
+      return (
+        <div key={index} className="room__entry">
+          {index}
+        </div>
+      );
+    });
 
     return (
       <div className="room">
         <div className="room__infos">
-          TEST
+          "Test"
         </div>
         <div className="room__entries">
-          {entries}
+          {messages}
         </div>
         <div className="room__actions">
           <TextField
