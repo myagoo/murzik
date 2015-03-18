@@ -16,6 +16,9 @@ let roomsStore = Reflux.createStore({
             this.rooms = newRooms;
             this.trigger(this.rooms);
         }
+    },
+    onReceive: function({userInfos, channel, date, text}){
+        //TODO
     }
 });
 

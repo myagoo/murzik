@@ -32,7 +32,7 @@ http.listen(8000, function() {
 
 let users = new Map();
 let socketUserMap = new Map();
-let channels = new Map();
+let rooms = new Map();
 
 /*setInterval(function() {
   Object.keys(users).map(function(username) {
@@ -56,9 +56,9 @@ io.on('connection', function(socket) {
         handleLogout(userName);
       });
 
-      socket.on('client.message', function(message) {
+      socket.on('client.message.send', function(message) {
         console.log('message', userName, message);
-        io.to(message.channel).emit('channel.message', message);
+        handleMessage(user, message);
       });
 
       socket.emit('server.login.completed', user.infos);
@@ -141,6 +141,35 @@ function updateUserCurrentTrack(user, track) {
   });
 
   user.currentTrack = track;
+}
+
+function getRoom(channel){
+    if(rooms.has(channel)){
+        return rooms.get(channel);
+    }
+    let room = {
+        messages: []
+    }
+    rooms.set(channel, room);
+    return room;
+}
+
+function handleMessage(user, {channel, text}){
+    let room = getRoom(channel);
+    let date = Date.now();
+
+    room.messages.push({
+        date,
+        user,
+        text
+    });
+
+    io.in(channel).emit('server.message.send', {
+        user: user.infos,
+        date,
+        channel,
+        text
+    });
 }
 
 function getUser(userName) {

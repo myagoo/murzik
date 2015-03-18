@@ -11,18 +11,17 @@ let Layout = React.createClass({
     e.preventDefault();
     currentUserActions.logout();
   },
-  getRooms: function(){
-    return this.state.rooms.map(function(room, index){
-      return <Room key={index} room={room} />
-    }.bind(this));
-  },
   render: function () {
-    let rooms = this.getRooms();
+    let rooms = this.state.rooms.map(function(room, index){
+      return <Room key={index} room={room} />
+    }.bind(this)).toJS();
 
     return (
       <div className="layout">
         <Toolbar className="toolbar">
-          {this.props.currentUser.get('name')}
+            <span className="mui-font-style-display-2">
+                {this.props.currentUser.get('name')}
+            </span>
           <ToolbarGroup float="right">
             <RaisedButton
               onClick={this.handleLogoutClick}

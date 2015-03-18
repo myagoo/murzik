@@ -8,13 +8,13 @@ let Login = React.createClass({
       username: ''
     };
   },
-  handleUsernameChange: function(e){
+  handleUsernameChange: function(event){
     this.setState({
-      username: e.target.value
+      username: event.target.value
     });
   },
-  handleSubmit: function(e){
-    e.preventDefault();
+  handleSubmit: function(event){
+      event.preventDefault();
     currentUserActions.login({
       username: this.state.username
     });
