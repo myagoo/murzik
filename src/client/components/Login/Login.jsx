@@ -14,11 +14,10 @@ let Login = React.createClass({
     });
   },
   handleSubmit: function(event){
-      event.preventDefault();
-    currentUserActions.login({
-      username: this.state.username
-    });
+    event.preventDefault();
+    currentUserActions.login(this.state.username);
   },
+  
   render: function(){
     return (
       <Paper

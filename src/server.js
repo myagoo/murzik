@@ -57,7 +57,7 @@ io.on('connection', function(socket) {
       });
 
       socket.on('client.message.send', function(message) {
-        console.log('message', userName, message);
+        console.log('message', userName, message, socket.rooms);
         handleMessage(user, message);
       });
 
@@ -65,7 +65,7 @@ io.on('connection', function(socket) {
 
     }).catch(function(error) {
       console.error('#ERROR', error);
-      socket.emit('server.login.failed', error);
+      socket.emit('server.login.failed', error.message);
     });
   });
 
@@ -93,22 +93,34 @@ function getPath(obj, ks) {
   return getPath(obj[_.first(ks)], _.rest(ks));
 }
 
+function getOrCreateRoom(channel, name) {
+  if (rooms.has(channel)) {
+    return rooms.get(channel);
+  }
+  let room = {
+    channel,
+    name,
+    messages: []
+  };
+  rooms.set(channel, room);
+  return room;
+}
+
+
 function extractRooms(track) {
   let inTrack = getPath.bind(null, track);
-  let artistName = inTrack('artist.#text');
-  let albumName = inTrack('album.#text');
-  let trackName = inTrack('name');
+  let artistName = inTrack('artist.#text'),
+    albumName = inTrack('album.#text'),
+    trackName = inTrack('name');
+  let artistChannel = artistName,
+    albumChannel = artistName + '/' + albumName,
+    trackChannel = artistName + '/' + albumName + '/' + trackName;
 
-  return [{
-    channel: artistName,
-    name: artistName
-  }, {
-    channel: artistName + '/' + albumName,
-    name: albumName
-  }, {
-    channel: artistName + '/' + albumName + '/' + trackName,
-    name: trackName
-  }];
+  return {
+    [artistChannel]: getOrCreateRoom(artistChannel, artistName),
+    [albumChannel]: getOrCreateRoom(albumChannel, albumName),
+    [trackChannel]: getOrCreateRoom(trackChannel, trackName)
+  };
 }
 
 function updateUserCurrentTrack(user, track) {
@@ -116,60 +128,52 @@ function updateUserCurrentTrack(user, track) {
   let newRooms = extractRooms(track);
 
   user.sockets.forEach(function(socket) {
-    newRooms.forEach(function(newRoom, index) {
-      let oldChannel = oldRooms[index] && oldRooms[index].channel;
-      let newChannel = newRoom.channel;
+    console.log('updating socket', socket.id);
+    Object.keys(newRooms).forEach(function(roomKey) {
+      console.log('updating room', newRooms[roomKey])
+      let oldChannel = oldRooms[roomKey] && oldRooms[roomKey].channel;
+      let newChannel = newRooms[roomKey].channel;
 
       if (newChannel !== oldChannel) {
-        user.sockets.forEach(function(socket) {
-          // Leave old channel
-          socket.leave(oldChannel, function(err){
-            if(err) console.error(err);
-
-          });
-          // Join new channel if any
-          if (newChannel) {
-            socket.join(newChannel, function(err){
-              if(err) console.error(err);
-
-            });
-          }
+        console.log('leaving channel', oldChannel);
+        // Leave old channel
+        socket.leave(oldChannel, function(err) {
+          if (err) console.error('socket.leave', oldChannel, err);
         });
+        // Join new channel if any
+        if (newChannel) {
+          console.log('join channel', newChannel);
+          socket.join(newChannel, function(err) {
+            if (err) console.error('socket.join', newChannel, err);
+          });
+        }
       }
     });
-    socket.emit('server.rooms.update', newRooms);
+    console.log('server.rooms.update', newRooms);
+    socket.emit('server.rooms.update', newRooms, function(err){
+      if (err) console.error('server.rooms.update', newRooms, err);
+    });
   });
 
   user.currentTrack = track;
 }
 
-function getRoom(channel){
-    if(rooms.has(channel)){
-        return rooms.get(channel);
-    }
-    let room = {
-        messages: []
-    }
-    rooms.set(channel, room);
-    return room;
-}
+function handleMessage(user, {channel, text}) {
+  let room = rooms.get(channel);
+  let date = Date.now();
 
-function handleMessage(user, {channel, text}){
-    let room = getRoom(channel);
-    let date = Date.now();
+  room.messages.push({
+    date,
+    user,
+    text
+  });
 
-    room.messages.push({
-        date,
-        user,
-        text
-    });
-
-    io.in(channel).emit('server.message.send', {
-        user: user.infos,
-        date,
-        channel,
-        text
-    });
+  io.in(channel).emit('server.message.send', {
+    user: user.infos,
+    date,
+    channel,
+    text
+  });
 }
 
 function getUser(userName) {
@@ -190,6 +194,7 @@ function handleLogin(socket, userName) {
     // Add current socket to user socket list
     user.sockets.push(socket);
     return api.getCurrentTrack(user.infos.name).then(function(currentTrack) {
+      console.log('currentTrack', user.infos.name, currentTrack)
       updateUserCurrentTrack(user, currentTrack);
       return user;
     });
@@ -201,8 +206,8 @@ function handleLogout(userName) {
   let rooms = extractRooms(user.currentTrack);
 
   user.sockets.forEach(function(socket) {
-    rooms.forEach(function(room) {
-      socket.leave(room.channel);
+    Object.keys(rooms).forEach(function(channel) {
+      socket.leave(channel);
     });
     socket.emit('server.logout');
   });

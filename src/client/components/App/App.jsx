@@ -1,9 +1,9 @@
 import React from 'react';
 import Reflux from 'reflux';
 import {Toolbar, ToolbarGroup, DropDownMenu, DropDownIcon, IconButton, FontIcon, RaisedButton} from 'material-ui';
-import Login from 'components/Login/Login.js';
-import Layout from 'components/Layout/Layout.js';
-import currentUserStore from 'stores/currentUser.js'
+import Login from 'components/Login/Login.jsx';
+import Layout from 'components/Layout/Layout.jsx';
+import currentUserStore from 'stores/currentUser.js';
 
 let App = React.createClass({
   mixins: [Reflux.connect(currentUserStore, 'currentUser')],

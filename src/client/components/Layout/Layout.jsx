@@ -1,7 +1,8 @@
 import React from 'react';
 import Reflux from 'reflux';
+import Immutable from 'immutable';
 import {Toolbar, ToolbarGroup, DropDownMenu, DropDownIcon, IconButton, FontIcon, RaisedButton} from 'material-ui';
-import Room from 'components/Room/Room.js';
+import Room from 'components/Room/Room.jsx';
 import {currentUserActions} from 'actions.js';
 import roomsStore from 'stores/rooms.js';
 
@@ -19,18 +20,19 @@ let Layout = React.createClass({
     return (
       <div className="layout">
         <Toolbar className="toolbar">
-            <span className="mui-font-style-display-2">
-                {this.props.currentUser.get('name')}
-            </span>
+          <span className="mui-font-style-display-2">
+            {this.props.currentUser.get('name')}
+          </span>
           <ToolbarGroup float="right">
             <RaisedButton
-              onClick={this.handleLogoutClick}
+              onClick= {this.handleLogoutClick}
               label="Logout"
-              primary={true}/>
+              primary={true}>
+            </RaisedButton>
           </ToolbarGroup>
         </Toolbar>
         <div className="rooms">
-            {rooms}
+          {rooms}
         </div>
       </div>
     );

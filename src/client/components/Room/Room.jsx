@@ -28,13 +28,14 @@ let Room = React.createClass({
       }
   },
   render: function () {
-    let messages = _.range(10).map(function(index){
+    let messages = this.props.room.get('messages').map(function(message, index){
+      console.log('message', message);
       return (
         <div key={index} className="room__entry">
-          {index}
+          {message}
         </div>
       );
-    });
+    }).toJS();
 
     return (
         <div className="room">

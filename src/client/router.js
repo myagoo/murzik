@@ -1,4 +1,4 @@
-var App = require('components/App/App.js');
+var App = require('components/App/App.jsx');
 var {Route, HistoryLocation, create} = require('react-router');
 
 var routes = (
