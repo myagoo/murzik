@@ -12,7 +12,8 @@ let server = Server(app);
 let io = socketIO.listen(server);
 let api = new Api(config.api.uri, config.api.key);
 
-app.use(logger('combined'));
+//app.use(logger('combined'));
+
 app.use(serve('static'));
 app.get('/', function(req, res) {
   res.send(`
@@ -38,12 +39,12 @@ let users = new Map();
 let socketUserMap = new Map();
 let rooms = new Map();
 
-/*setInterval(function() {
+setInterval(function() {
   Object.keys(users).map(function(username) {
     let user = users[username];
     console.log('#Current track', user)
   });
-}, 1000);*/
+}, 60000 /* 1 minute */);
 
 io.on('connection', function(socket) {
   console.log('connection');
@@ -55,20 +56,21 @@ io.on('connection', function(socket) {
 
       socketUserMap.set(socket, user);
 
-      socket.once('client.logout', function() {
-        console.log('logout', userName);
-        handleLogout(userName);
+      socket.on('client.message.send', function(message) {
+        console.log('client.message.send', userName, message, socket);
+        handleMessage(user, message);
       });
 
-      socket.on('client.message.send', function(message) {
-        console.log('message', userName, message);
-        handleMessage(user, message);
+      socket.once('client.logout', function() {
+        console.log('client.logout', userName);
+        handleLogout(userName);
+        socket.removeAllListeners('client.message.send');
       });
 
       socket.emit('server.login.completed', user.infos);
 
     }).catch(function(error) {
-      console.error('#ERROR', error);
+      console.error(error);
       socket.emit('server.login.failed', error.message);
     });
   });
@@ -76,6 +78,7 @@ io.on('connection', function(socket) {
   socket.once('disconnect', function() {
     console.log('disconnected');
     handleDisconnect(socket);
+    socketUserMap.delete(socket);
   });
 });
 
@@ -134,9 +137,12 @@ function updateUserCurrentTrack(user, track) {
   user.sockets.forEach(function(socket) {
     console.log('updating socket', socket.id);
     Object.keys(newRooms).forEach(function(roomKey) {
-      console.log('updating room', newRooms[roomKey])
+
       let oldChannel = oldRooms[roomKey] && oldRooms[roomKey].channel;
       let newChannel = newRooms[roomKey].channel;
+
+      console.log('oldChannel', oldChannel);
+      console.log('newChannel', newChannel);
 
       if (newChannel !== oldChannel) {
         // Leave old channel
@@ -155,7 +161,6 @@ function updateUserCurrentTrack(user, track) {
         }
       }
     });
-    console.log('socket.rooms', socket.rooms);
     socket.emit('server.rooms.update', newRooms, function(err){
       if (err) console.error('server.rooms.update', newRooms, err);
     });
@@ -177,19 +182,22 @@ function handleMessage(user, {channel, text}) {
 
   room.messages.push(message);
 
+  console.log('server.message.send', message);
+
   io.in(channel).emit('server.message.send', message);
 }
 
 function getUser(userName) {
-  if (users[userName]) {
-    return Promise.resolve(users[userName]);
+  if (users.has(userName)) {
+    return Promise.resolve(users.get(userName));
   }
   return api.getUserInfos(userName).then(function(userInfos) {
-    users[userName] = {
+    let user =  {
       infos: userInfos,
       sockets: []
     };
-    return users[userName];
+    users.set(userName, user);
+    return user;
   });
 }
 
@@ -206,11 +214,14 @@ function handleLogin(socket, userName) {
 }
 
 function handleLogout(userName) {
-  let user = users[userName];
+  let user = users.get(userName);
   let rooms = extractRooms(user.currentTrack);
+
+  delete user.currentTrack;
 
   user.sockets.forEach(function(socket) {
     Object.keys(rooms).forEach(function(channel) {
+      console.log(`leaving channel ${channel} for socket ${socket.id}`);
       socket.leave(channel);
     });
     socket.emit('server.logout');
@@ -222,7 +233,12 @@ function handleDisconnect(socket) {
   if (user) {
     let socketIndex = user.sockets.indexOf(socket);
     if (socketIndex !== -1) {
+      console.log(`removing socket ${user.sockets[socketIndex].id} for user ${user.infos.name}`);
       user.sockets.splice(socketIndex);
     }
+    if(user.sockets.length === 0){
+      users.delete(user.infos.name);
+    }
   }
+  socketUserMap.delete(socket);
 }
