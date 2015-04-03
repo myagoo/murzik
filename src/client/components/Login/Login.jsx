@@ -17,9 +17,10 @@ let Login = React.createClass({
     event.preventDefault();
     currentUserActions.login(this.state.username);
   },
-  
+
   render: function(){
     return (
+      <div className="login_container">
       <Paper
         className="login"
         innerClassName="login__inner"
@@ -41,6 +42,7 @@ let Login = React.createClass({
             primary={true}/>
         </form>
       </Paper>
+      </div>
     );
   }
 });

@@ -4,17 +4,15 @@
   "description": "IM with users which are currently listening to same artist/album/track as you or just leave a message",
   "scripts": {
     "start": "supervisor dist/server",
-    "localhost": "sleep 1; which xdg-open && xdg-open http://localhost:8000",
-    "browser": "sleep 6; concurrent 'npm run start' 'npm run localhost'",
     "build-server": "webpack --progress --verbose --colors --display-error-details --config webpack.server.js",
     "build-client": "webpack --progress --verbose --colors --display-error-details --config webpack.client.js --optimize",
     "build": "concurrent 'npm run build-client' 'npm run build-server'",
     "hot-server": "webpack --verbose --colors --display-error-details --watch --config webpack.server-watch.js",
     "hot-client": "webpack --verbose --colors --display-error-details --config webpack.client-watch.js && webpack-dev-server --config webpack.client-watch.js",
-    "hot": "concurrent --kill-others 'npm run watch-client' 'npm run watch-server' 'npm run browser'",
-    "watch-server": "webpack --watch --progress --colors --display-error-details --config webpack.server.js",
-    "watch-client": "webpack --watch --progress --colors --display-error-details --config webpack.client.js",
-    "watch": "concurrent --kill-others 'npm run watch-client' 'npm run watch-server' 'npm run browser'"
+    "hot": "concurrent --kill-others 'npm run watch-client' 'npm run watch-server'",
+    "watch-server": "webpack --watch --progress --colors --config webpack.server.js",
+    "watch-client": "webpack --watch --progress --colors --config webpack.client.js",
+    "watch": "concurrent --kill-others 'npm run watch-client' 'npm run watch-server'"
   },
   "repository": {
     "type": "git",

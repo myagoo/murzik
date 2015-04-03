@@ -1,15 +1,19 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var serveStatic = require('serve-static')('static');
-var logger = require('morgan')('combined');
-var io = require('socket.io')(http);
-var config = require('server.config.js');
-var Api = require('api.js');
-let api = new Api(config.api.uri, config.api.key);
+import express from 'express';
+import {Server} from 'http';
+import serve from 'serve-static';
+import logger from 'morgan';
+import socketIO from 'socket.io';
+import config from 'server.config.js';
+import Api from 'api.js';
 import _ from 'lodash';
 
-app.use(logger);
-app.use(serveStatic);
+let app = express();
+let server = Server(app);
+let io = socketIO.listen(server);
+let api = new Api(config.api.uri, config.api.key);
+
+app.use(logger('combined'));
+app.use(serve('static'));
 app.get('/', function(req, res) {
   res.send(`
     <!DOCTYPE html>
@@ -26,7 +30,7 @@ app.get('/', function(req, res) {
   `);
 });
 
-http.listen(8000, function() {
+server.listen(8000, function() {
   console.log('listening on *:8000');
 });
 
@@ -57,7 +61,7 @@ io.on('connection', function(socket) {
       });
 
       socket.on('client.message.send', function(message) {
-        console.log('message', userName, message, socket.rooms);
+        console.log('message', userName, message);
         handleMessage(user, message);
       });
 
@@ -135,11 +139,13 @@ function updateUserCurrentTrack(user, track) {
       let newChannel = newRooms[roomKey].channel;
 
       if (newChannel !== oldChannel) {
-        console.log('leaving channel', oldChannel);
         // Leave old channel
-        socket.leave(oldChannel, function(err) {
-          if (err) console.error('socket.leave', oldChannel, err);
-        });
+        if(oldChannel){
+            console.log('leaving channel', oldChannel);
+            socket.leave(oldChannel, function(err) {
+                if (err) console.error('socket.leave', oldChannel, err);
+            });
+        }
         // Join new channel if any
         if (newChannel) {
           console.log('join channel', newChannel);
@@ -149,7 +155,7 @@ function updateUserCurrentTrack(user, track) {
         }
       }
     });
-    console.log('server.rooms.update', newRooms);
+    console.log('socket.rooms', socket.rooms);
     socket.emit('server.rooms.update', newRooms, function(err){
       if (err) console.error('server.rooms.update', newRooms, err);
     });
@@ -162,18 +168,16 @@ function handleMessage(user, {channel, text}) {
   let room = rooms.get(channel);
   let date = Date.now();
 
-  room.messages.push({
-    date,
-    user,
-    text
-  });
+  let message = {
+      user: user.infos,
+      date,
+      channel,
+      text
+  };
 
-  io.in(channel).emit('server.message.send', {
-    user: user.infos,
-    date,
-    channel,
-    text
-  });
+  room.messages.push(message);
+
+  io.in(channel).emit('server.message.send', message);
 }
 
 function getUser(userName) {

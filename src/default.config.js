@@ -1,6 +1,6 @@
 let defaultConfig = {
   api: {
-    uri: undefined,
+    uri: 'http://ws.audioscrobbler.com/2.0/',
     key: undefined,
     secret: undefined
   }

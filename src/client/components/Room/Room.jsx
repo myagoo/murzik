@@ -29,10 +29,11 @@ let Room = React.createClass({
   },
   render: function () {
     let messages = this.props.room.get('messages').map(function(message, index){
-      console.log('message', message);
       return (
         <div key={index} className="room__entry">
-          {message}
+          <span className="room__entry_date">{message.get('date')}</span>
+          <span className="room__entry_user">{message.getIn(['user', 'name'])}</span>
+          <span className="room__entry_text">{message.get('text')}</span>
         </div>
       );
     }).toJS();

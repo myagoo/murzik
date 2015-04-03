@@ -1,5 +1,5 @@
 import Reflux from 'reflux';
-import Immutable from 'immutable';
+import Immutable from 'expose?Immutable!immutable';
 import {roomsActions} from 'actions.js';
 
 let roomsStore = Reflux.createStore({
@@ -15,7 +15,7 @@ let roomsStore = Reflux.createStore({
     this.trigger(this.rooms);
   },
   onReceive: function(message) {
-    this.rooms = this.rooms.updateIn([message.channel, 'messages'], (messages) => messages.push(message));
+    this.rooms = this.rooms.updateIn([message.channel, 'messages'], (messages) => messages.push(Immutable.fromJS(message)));
     this.trigger(this.rooms);
   }
 });
