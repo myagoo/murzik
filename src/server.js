@@ -1,5 +1,4 @@
 import express from 'express';
-import {Server} from 'http';
 import serve from 'serve-static';
 import logger from 'morgan';
 import socketIO from 'socket.io';
@@ -7,10 +6,9 @@ import config from 'server.config.js';
 import Api from 'api.js';
 import _ from 'lodash';
 
-let app = express();
-let server = Server(app);
-let io = socketIO.listen(server);
 let api = new Api(config.api.uri, config.api.key);
+
+let app = express();
 
 //app.use(logger('combined'));
 
@@ -31,9 +29,11 @@ app.get('/', function(req, res) {
   `);
 });
 
-server.listen(8000, function() {
+let server = app.listen(8000, function() {
   console.log('listening on *:8000');
 });
+
+let io = socketIO.listen(server);
 
 let users = new Map();
 let socketUserMap = new Map();
