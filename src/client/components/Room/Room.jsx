@@ -25,6 +25,7 @@ let Room = React.createClass({
           this.setState({
               value: ''
           });
+          this.refs.input.focus();
       }
   },
   render: function () {
@@ -50,6 +51,7 @@ let Room = React.createClass({
               className="room__actions"
               onSubmit={this.handleSubmit}>
             <TextField
+              ref="input"
               onChange={this.handleChange}
               value={this.state.value}
               className="room__input"

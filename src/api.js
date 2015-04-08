@@ -37,7 +37,7 @@ class Api {
     return this.call('user.getrecenttracks', {
       user: username,
       limit: 1,
-    }).then((result) => result.recenttracks.track);
+    }).then((result) => result.recenttracks.track[0]);
   }
 }
 

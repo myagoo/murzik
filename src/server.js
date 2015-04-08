@@ -39,12 +39,14 @@ let users = new Map();
 let socketUserMap = new Map();
 let rooms = new Map();
 
+/*
 setInterval(function() {
   Object.keys(users).map(function(username) {
     let user = users[username];
     console.log('#Current track', user)
   });
-}, 60000 /* 1 minute */);
+}, 60000); //1 minute
+*/
 
 io.on('connection', function(socket) {
   console.log('connection');
@@ -161,6 +163,7 @@ function updateUserCurrentTrack(user, track) {
         }
       }
     });
+    console.log('server.rooms.update', newRooms);
     socket.emit('server.rooms.update', newRooms, function(err){
       if (err) console.error('server.rooms.update', newRooms, err);
     });
